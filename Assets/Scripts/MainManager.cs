@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class MainManager : MonoBehaviour
 {
@@ -18,7 +19,8 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
-    
+    public TextMeshProUGUI NameText;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -35,6 +37,14 @@ public class MainManager : MonoBehaviour
                 brick.PointValue = pointCountArray[i];
                 brick.onDestroyed.AddListener(AddPoint);
             }
+        }
+
+        ItemsToSave.Instance.LoadScore();
+        NameManager.Instance.LoadNaam();
+
+        if (ItemsToSave.Instance != null && NameManager.Instance != null)
+        {
+            NameText.text = $"Best Score: {ItemsToSave.Instance.highScore}   Name: " + NameManager.Instance.naam;
         }
     }
 
@@ -57,9 +67,15 @@ public class MainManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
+                
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
         }
+    }
+
+    public void GoBack()
+    {
+        SceneManager.LoadScene(0);
     }
 
     void AddPoint(int point)
@@ -68,8 +84,18 @@ public class MainManager : MonoBehaviour
         ScoreText.text = $"Score : {m_Points}";
     }
 
+    void CheckHighscore()
+    {
+        if (m_Points > ItemsToSave.Instance.highScore)
+        {
+            ItemsToSave.Instance.highScore = m_Points;
+            ItemsToSave.Instance.SaveScore();
+        }
+    }
+
     public void GameOver()
     {
+        CheckHighscore();
         m_GameOver = true;
         GameOverText.SetActive(true);
     }
